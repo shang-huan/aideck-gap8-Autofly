@@ -70,7 +70,7 @@ rangeDirection_t GetRandomDir(example_measure_t *measurement)
 
 double caldistance(coordinate_t *A, coordinate_t *B)
 {
-    return sqrt(pow(A->x - B->x, 2) + pow(A->y - B->y, 2) + pow(A->z - B->z, 2));
+    return sqrt(Mypow(A->x - B->x, 2) + Mypow(A->y - B->y, 2) + Mypow(A->z - B->z, 2));
 }
 
 bool cal_Point(example_measure_t *measurement, coordinateF_t *start_point, rangeDirection_t dir, coordinateF_t *res)
@@ -370,19 +370,19 @@ costParameter_t Cost(coordinate_t *point, octoTree_t *octoTree, octoMap_t *octoM
     { // occupied
         p = P_GLOBAL + (1 - P_GLOBAL) * (double)Occupiednum / 8;
         costParameter.p_not_occupied = 1 - p;
-        cost_prune = 8 * pow(p, 8 - Occupiednum);
+        cost_prune = 8 * Mypow(p, 8 - Occupiednum);
     }
     else if (i == 8 && Freenum != 0)
     { // not occupied
         p = (1 - P_GLOBAL) + P_GLOBAL * (double)Freenum / 8;
         costParameter.p_not_occupied = p;
-        cost_prune = 8 * pow(p, 8 - Freenum);
+        cost_prune = 8 * Mypow(p, 8 - Freenum);
     }
     else
     { // unknown
         p = 1 - P_GLOBAL;
         costParameter.p_not_occupied = p;
-        cost_prune = 8 * pow(p, 8);
+        cost_prune = 8 * Mypow(p, 8);
     } // 根据p_global值固定与否可以考虑数组存值替代幂运算
     costParameter.cost_prune = cost_prune;
     return costParameter;
