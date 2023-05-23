@@ -182,7 +182,7 @@ bool cal_PointByLength(float length, float pitch, float roll, float yaw, coordin
     }
     break;
     default:
-        DEBUG_PRINT("wrong input direction\n");
+        cpxPrintToConsole(LOG_TO_CRTP, "wrong input direction\n");
         break;
     }
     return FALSE;
@@ -190,13 +190,13 @@ bool cal_PointByLength(float length, float pitch, float roll, float yaw, coordin
 
 coordinateF_t rot(float roll, float pitch, float yaw, coordinateF_t *origin, coordinateF_t *point)
 {
-    float cosr = cos((double)roll * M_PI / 180);
-    float cosp = cos((double)pitch * M_PI / 180);
-    float cosy = cos((double)yaw * M_PI / 180);
+    float cosr = Mycos((double)roll * M_PI / 180);
+    float cosp = Mycos((double)pitch * M_PI / 180);
+    float cosy = Mycos((double)yaw * M_PI / 180);
 
-    float sinr = sin((double)roll * M_PI / 180);
-    float sinp = sin((double)pitch * M_PI / 180);
-    float siny = sin((double)yaw * M_PI / 180);
+    float sinr = Mysin((double)roll * M_PI / 180);
+    float sinp = Mysin((double)pitch * M_PI / 180);
+    float siny = Mysin((double)yaw * M_PI / 180);
 
     float roty[3][3];
     float rotp[3][3];
@@ -247,9 +247,9 @@ coordinateF_t rot(float roll, float pitch, float yaw, coordinateF_t *origin, coo
 
 void determine_threshold(coordinateF_t *point)
 {
-    point->x = fmax(fmin(point->x, WIDTH_X), 0);
-    point->y = fmax(fmin(point->y, WIDTH_Y), 0);
-    point->z = fmax(fmin(point->z, WIDTH_Z), 0);
+    point->x = Myfmax(Myfmin(point->x, WIDTH_X), 0);
+    point->y = Myfmax(Myfmin(point->y, WIDTH_Y), 0);
+    point->z = Myfmax(Myfmin(point->z, WIDTH_Z), 0);
 }
 
 void dot(float A[][3], float B[][1])

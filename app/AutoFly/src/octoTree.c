@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include "math1.h"
 #include <stdlib.h>
 #include "octoTree.h"
 #include "octoNodeSet.h"

@@ -90,7 +90,7 @@ bool CalBestCandinates(octoMap_t *octoMap,uavControl_t* uavControl){
 
 bool JumpLocalOp(uavControl_t *uavControl){
     // rangeDirection_t dir = rand()%6;
-    float length = myfmin(uavControl->uavRange.measurement.data[uavControl->Jump_Dir],300);
+    float length = Myfmin(uavControl->uavRange.measurement.data[uavControl->Jump_Dir],300);
     // coordinateF_t item_start_point = {current_point->x,current_point->y,current_point->z};
     coordinateF_t item_end_point;
     if(length > STRIDE + AVOID_DISTANCE){
