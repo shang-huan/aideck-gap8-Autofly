@@ -26,10 +26,13 @@ void sendSumUpInfo(){
     octoNodeSetItem_t* cur = base+(&octoMapData)->octoNodeSet->fullQueueEntry;
     short length=(&octoMapData)->octoNodeSet->length;
     short nodesCount=0;
-    cpxPrintToConsole(LOG_TO_CRTP, "[SumUpInfo]TotalPacketCount = %d\n", TotalPacketCount);
-    cpxPrintToConsole(LOG_TO_CRTP, "[SumUpInfo]NodesCOunt = %d\n", nodesCount);
-    cpxPrintToConsole(LOG_TO_CRTP, "[SumUpInfo]UAV1: %d, UAV2: %d, UAV3: %d, total: %d\n\n", 
-        UAV1count, UAV2count, UAV3count, TotalPacketCount);
+    int totalPacketC = uavSendC[0]+uavSendC[1]+uavSendC[2];
+    int receivePacketC = uavReceiveC[0]+uavReceiveC[1]+uavReceiveC[2];
+    cpxPrintToConsole(LOG_TO_CRTP, "[SumUpInfo]Packet loss rate: T:%.2f%%,0:%.2f%%,1:%.2f%%,2:%.2f%%\n",
+        (float)100*(totalPacketC-receivePacketC)/totalPacketC,
+        (float)100*(uavSendC[0]-uavReceiveC[0])/uavSendC[0],
+        (float)100*(uavSendC[1]-uavReceiveC[1])/uavSendC[1],
+        (float)100*(uavSendC[2]-uavReceiveC[2])/uavSendC[2]);
     while(nodesCount < length){
         nodesCount++;
         cpxPrintToConsole(LOG_TO_CRTP, "[SumUpInfo]Seq = %d\n",nodesCount);
@@ -87,8 +90,8 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
             memcpy(&mapping_req_packet, autofly_packet->data, sizeof(mapping_req_packet_t));
             uavSendC[autofly_packet->sourceId] = mapping_req_packet.seq;
             ++uavReceiveC[autofly_packet->sourceId];
-            cpxPrintToConsole(LOG_TO_CRTP, "uav%d Packet loss rate:%.2f%%\n",autofly_packet->sourceId,100.0*(uavReceiveC[autofly_packet->sourceId])/uavSendC[autofly_packet->sourceId]);
-            UpdateMap(&octoMapData,&mapping_req_packet.mappingRequestPayload,autofly_packet->sourceId);
+            cpxPrintToConsole(LOG_TO_CRTP, "uav%d Packet loss rate:%.2f%%\n",autofly_packet->sourceId,100.0*(uavSendC[autofly_packet->sourceId]-uavReceiveC[autofly_packet->sourceId])/uavSendC[autofly_packet->sourceId]);
+            UpdateMap(&octoMapData,&(mapping_req_packet.mappingRequestPayload),autofly_packet->sourceId);
             break;
         }
         case EXPLORE_REQ:
