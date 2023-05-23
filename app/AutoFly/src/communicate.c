@@ -19,7 +19,7 @@ static bool HasPrinted=false;
 uavControl_t uavs[UAVS_LIDAR_NUM];
 bool finishFlag[UAVS_LIDAR_NUM];
 int uavSendC[UAVS_LIDAR_NUM];
-int uavReceiveC[UAVS_LIDAR_NUM]
+int uavReceiveC[UAVS_LIDAR_NUM];
 
 void sendSumUpInfo(){
     octoNodeSetItem_t* base = (&octoMapData)->octoNodeSet->setData;
@@ -84,19 +84,19 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
         case MAPPING_REQ:
         {
             mapping_req_packet_t mapping_req_packet;
-            memcpy(&mapping_req_packet, autofly_packet.data, sizeof(mapping_req_packet_t));
+            memcpy(&mapping_req_packet, autofly_packet->data, sizeof(mapping_req_packet_t));
             uavSendC[autofly_packet->sourceId] = mapping_req_packet.seq;
             ++uavReceiveC[autofly_packet->sourceId];
             cpxPrintToConsole(LOG_TO_CRTP, "uav%d Packet loss rate:%.2f%%\n",autofly_packet->sourceId,100.0*(uavReceiveC[autofly_packet->sourceId])/uavSendC[autofly_packet->sourceId]);
-            UpdateMap(&mapping_req_packet,autofly_packet->sourceId);
+            UpdateMap(&octoMapData,&mapping_req_packet.mappingRequestPayload,autofly_packet->sourceId);
             break;
         }
         case EXPLORE_REQ:
         {
             explore_req_packet_t explore_req_packet;
-            memcpy(&explore_req_packet, autofly_packet.data, sizeof(explore_req_packet_t));
-            uavs[autofly_packet->sourceId].uavRange = explore_req_packet.uavRange;
-            if(CalNextPoint(&uavs[autofly_packet->sourceId].uavRange,&octoMapData)){
+            memcpy(&explore_req_packet, autofly_packet->data, sizeof(explore_req_packet_t));
+            uavs[autofly_packet->sourceId].uavRange = explore_req_packet.exploreRequestPayload.uavRange;
+            if(CalNextPoint(&uavs[autofly_packet->sourceId],&octoMapData)){
                 Autofly_packet_t autofly_packet_send;
                 autofly_packet_send.sourceId = AIDECK_ID;
                 autofly_packet_send.destinationId = autofly_packet->sourceId;
@@ -159,7 +159,7 @@ void InitTask(void){
     mapInit();
     packet.data[0] = -1;
     while(1) {
-        ReceiveAndGive();
+        ReceiveAndSend();
         pi_time_wait_us(10 * 1000);
     }
 }
