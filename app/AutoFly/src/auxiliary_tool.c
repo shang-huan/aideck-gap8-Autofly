@@ -3,8 +3,10 @@
 #include <stdint.h>
 #include "pmsis.h"
 #include "bsp/bsp.h"
+#include "cpx.h"
 
 #include "auxiliary_tool.h"
+#include "config_autofly.h"
 #include "octoMap.h"
 #include "octoTree.h"
 #include "cpx.h"
@@ -47,17 +49,17 @@ void inituavControl(uavControl_t* uavControl){
 rangeDirection_t GetRandomDir(example_measure_t *measurement)
 {
     // Randomly sample twice to choose the larger
-    rangeDirection_t dir = (rangeDirection_t)rand() % 6;
-    rangeDirection_t maxdir = (rangeDirection_t)rand() % 6;
+    rangeDirection_t dir = (rangeDirection_t)Myrand() % 6;
+    rangeDirection_t maxdir = (rangeDirection_t)Myrand() % 6;
     int i = 0;
     // Guaranteed to get a feasible direction
     while (measurement->data[maxdir] < STRIDE + AVOID_DISTANCE && i < 20)
     {
-        maxdir = (rangeDirection_t)rand() % 6;
+        maxdir = (rangeDirection_t)Myrand() % 6;
         ++i;
     }
     // Try to get a better and feasible direction
-    dir = (rangeDirection_t)rand() % 6;
+    dir = (rangeDirection_t)Myrand() % 6;
     ++i;
     if (i == 20)
         return -1;
@@ -127,7 +129,7 @@ bool cal_Point(example_measure_t *measurement, coordinateF_t *start_point, range
         }
         break;
     default:
-        DEBUG_PRINT("wrong input direction\n");
+        cpxPrintToConsole(LOG_TO_CRTP, "wrong input direction\n");
         break;
     }
     return FALSE;

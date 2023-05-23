@@ -2,12 +2,15 @@
 #include <stdint.h>
 #include "pmsis.h"
 #include "bsp/bsp.h"
+#include "cpx.h"
 #include "config_autofly.h"
 
 #include "control_tool.h"
 #include "auxiliary_tool.h"
 #include "octoMap.h"
 #include "octoTree.h"
+#include "math1.h"
+#include "math.h"
 
 void UpdateMap(octoMap_t *octoMap, mapping_req_payload_t *mappingRequestPayload,uint8_t uav_id)
 {
@@ -80,14 +83,14 @@ bool CalBestCandinates(octoMap_t *octoMap,uavControl_t* uavControl){
         return true;
     }
     else{
-        ("no next point\n");
+        cpxPrintToConsole(LOG_TO_CRTP, "no next point\n");
         return false;
     }
 }
 
 bool JumpLocalOp(uavControl_t *uavControl){
     // rangeDirection_t dir = rand()%6;
-    float length = fmin(uavControl->uavRange.measurement.data[uavControl->Jump_Dir],300);
+    float length = myfmin(uavControl->uavRange.measurement.data[uavControl->Jump_Dir],300);
     // coordinateF_t item_start_point = {current_point->x,current_point->y,current_point->z};
     coordinateF_t item_end_point;
     if(length > STRIDE + AVOID_DISTANCE){
@@ -103,15 +106,6 @@ bool JumpLocalOp(uavControl_t *uavControl){
         uavControl->flag_jump = false;
         return false;
     }
-}
-
-void MoveToNext(coordinateF_t* cur,coordinateF_t* next)
-{   
-    float d = sqrt(pow(cur->x - next->x, 2) + pow(cur->y - next->y, 2) + pow(cur->z - next->z, 2));
-    float time = d/100/SPEED;
-    cpxPrintToConsole(LOG_TO_CRTP,"time:%f\n",(double)time);
-    crtpCommanderHighLevelGoTo((next->x - OFFSET_X) / 100, (next->y - OFFSET_Y) / 100, (next->z - OFFSET_Z) / 100, 0, time, 0);
-    vTaskDelay(M2T(time*1000 + WAIT_DELAY));
 }
 
 bool CalNextPoint(uavControl_t* uavControl,octoMap_t* octoMap){
