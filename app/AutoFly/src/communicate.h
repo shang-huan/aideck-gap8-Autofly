@@ -1,11 +1,13 @@
-// Created by Ziyi on 4/2/23.
 #ifndef __COMMUNICATE_H__
 #define __COMMUNICATE_H__
-#include "config_autofly.h"
+#define DEBUG_MODULE "P2P"
 #include "auxiliary_tool.h"
+#include "config_autofly.h"
+#define BROADCAST_LIDAR_ID 0xFF
 #define MAPPING_REQUEST_PAYLOAD_LENGTH 1
-#define AUTOFLY_PACKET_MUT 60-4
-#define UAV_COMPUTING_ID 0x00
+#define AUTOFLY_PACKET_HEAD_LENGTH 5
+#define AUTOFLY_PACKET_MUT 60-AUTOFLY_PACKET_HEAD_LENGTH
+#define AIDECK_ID 0x7E
 
 typedef enum{
     // request
@@ -58,10 +60,23 @@ typedef struct
     explore_resp_payload_t exploreResponsePayload;
 } explore_resp_packet_t;  // 12+2
 
+typedef struct 
+{
+    uint16_t seq;
+    coordinateF_t rssi;
+}cluster_req_packet_t;
+
+typedef struct 
+{
+    uint16_t seq;
+    uint8_t clusterId;
+}cluster_resp_packet_t;
+
 typedef struct
 {
     uint8_t sourceId;
     uint8_t destinationId;
+    uint8_t nextdestinationId;
     uint8_t packetType;
     uint8_t length;
     uint8_t data[AUTOFLY_PACKET_MUT];

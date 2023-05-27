@@ -15,11 +15,13 @@ static CPXPacket_t packet;
 static Autofly_packet_t autofly_packet;
 octoMap_t octoMapData;
 static bool HasPrinted=false;
+uint8_t cluster_id = 0x00;
 
 uavControl_t uavs[UAVS_LIDAR_NUM];
 bool finishFlag[UAVS_LIDAR_NUM];
 int uavSendC[UAVS_LIDAR_NUM];
 int uavReceiveC[UAVS_LIDAR_NUM];
+uint8_t uavRssi[UAVS_LIDAR_NUM];
 
 void sendSumUpInfo(){
     octoNodeSetItem_t* base = (&octoMapData)->octoNodeSet->setData;
@@ -64,6 +66,18 @@ void sendSumUpInfo(){
     HasPrinted=true;
 }
 
+uint8_t CalBestCluster(){
+    uint8_t bestCluster = 0;
+    uint8_t bestRssi = 0x7f;
+    for(uint8_t i=0;i<UAVS_LIDAR_NUM;i++){
+        if(uavRssi[i]<bestRssi){
+            bestRssi = uavRssi[i];
+            bestCluster = i;
+        }
+    }
+    return bestCluster;
+}
+
 void mapInit()
 {
     octoMap_t* octoMap = &octoMapData;
@@ -79,6 +93,48 @@ void mapInit()
     cpxPrintToConsole(LOG_TO_CRTP, "[MapInit]octoNodeSet->freeQE = %d, fullQE = %d, length = %d, numFree = %d, numOccupied = %d\n", 
         octoMap->octoNodeSet->freeQueueEntry, octoMap->octoNodeSet->fullQueueEntry, 
         octoMap->octoNodeSet->length, octoMap->octoNodeSet->numFree, octoMap->octoNodeSet->numOccupied);
+}
+
+void sendClusterRespPacket(){
+    cluster_id = CalBestCluster(); // 选择最优蔟头
+    Autofly_packet_t autofly_packet_send;
+    autofly_packet_send.sourceId = AIDECK_ID;
+    autofly_packet_send.destinationId = BROADCAST_LIDAR_ID;
+    autofly_packet_send.packetType = CLUSTER_RESP;
+    
+    cluster_resp_packet_t cluster_resp_packet_send;
+    cluster_resp_packet_send.clusterId = cluster_id;
+
+    memcpy(autofly_packet_send.data, &cluster_resp_packet_send, sizeof(cluster_resp_packet_t));
+    autofly_packet_send.length = AUTOFLY_PACKET_HEAD_LENGTH + sizeof(cluster_resp_packet_t);
+
+    CPXPacket_t GAPTxSTM;
+    cpxInitRoute(CPX_T_GAP8, CPX_T_STM32, CPX_F_APP, &GAPTxSTM.route);
+    memcpy(GAPTxSTM.data, &autofly_packet_send, autofly_packet_send.length);
+    GAPTxSTM.dataLength = autofly_packet_send.length;
+    cpxSendPacketBlocking(&GAPTxSTM);
+    pi_time_wait_us(10 * 1000);        
+}
+
+void sendExploreRespPacket(uint8_t destinationId){
+    Autofly_packet_t autofly_packet_send;
+    autofly_packet_send.sourceId = AIDECK_ID;
+    autofly_packet_send.destinationId = cluster_id;
+    autofly_packet_send.nextdestinationId = destinationId;
+    autofly_packet_send.packetType = EXPLORE_RESP;
+    
+    explore_resp_packet_t explore_resp_packet_send;
+    explore_resp_packet_send.seq = explore_req_packet.seq;
+    explore_resp_packet_send.exploreResponsePayload.nextpoint = uavs[destinationId].next_point;
+    memcpy(autofly_packet_send.data, &explore_resp_packet_send, sizeof(explore_resp_packet_t));
+    autofly_packet_send.length = AUTOFLY_PACKET_HEAD_LENGTH + sizeof(explore_resp_packet_t);
+
+    CPXPacket_t GAPTxSTM;
+    cpxInitRoute(CPX_T_GAP8, CPX_T_STM32, CPX_F_APP, &GAPTxSTM.route);
+    memcpy(GAPTxSTM.data, &autofly_packet_send, autofly_packet_send.length);
+    GAPTxSTM.dataLength = autofly_packet_send.length;
+    cpxSendPacketBlocking(&GAPTxSTM);
+    pi_time_wait_us(10 * 1000);
 }
 
 void processAutoflyPacket(Autofly_packet_t* autofly_packet){
@@ -100,23 +156,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
             memcpy(&explore_req_packet, autofly_packet->data, sizeof(explore_req_packet_t));
             uavs[autofly_packet->sourceId].uavRange = explore_req_packet.exploreRequestPayload.uavRange;
             if(CalNextPoint(&uavs[autofly_packet->sourceId],&octoMapData)){
-                Autofly_packet_t autofly_packet_send;
-                autofly_packet_send.sourceId = AIDECK_ID;
-                autofly_packet_send.destinationId = autofly_packet->sourceId;
-                autofly_packet_send.packetType = EXPLORE_RESP;
-                
-                explore_resp_packet_t explore_resp_packet_send;
-                explore_resp_packet_send.seq = explore_req_packet.seq;
-                explore_resp_packet_send.exploreResponsePayload.nextpoint = uavs[autofly_packet->sourceId].next_point;
-                memcpy(autofly_packet_send.data, &explore_resp_packet_send, sizeof(explore_resp_packet_t));
-                autofly_packet_send.length = 4 + sizeof(explore_resp_packet_t);
-
-                CPXPacket_t GAPTxSTM;
-                cpxInitRoute(CPX_T_GAP8, CPX_T_STM32, CPX_F_APP, &GAPTxSTM.route);
-                memcpy(GAPTxSTM.data, &autofly_packet_send, autofly_packet_send.length);
-                GAPTxSTM.dataLength = autofly_packet_send.length;
-                cpxSendPacketBlocking(&GAPTxSTM);
-                pi_time_wait_us(10 * 1000);
+                sendExploreRespPacket(autofly_packet->sourceId);
             }
             else{
                 cpxPrintToConsole(LOG_TO_CRTP, "[EXPLORE_REQ]No Next Point\n");
@@ -131,6 +171,20 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
                 cpxPrintToConsole(LOG_TO_CRTP, "[TERMINATE]Start Print Map\n");
                 sendSumUpInfo();
             }
+        }
+        case CLUSTER_REQ:
+        {
+            cluster_req_packet_t cluster_req_packet;
+            memcpy(&cluster_req_packet, autofly_packet->data, sizeof(cluster_req_packet_t));
+            uavRssi[autofly_packet->sourceId] = cluster_req_packet.rssi;
+            if(autofly_packet->sourceId == cluster_id){
+                sendClusterRespPacket();
+            }
+            // init the uavRssi
+            for (int i = 0; i < UAVS_LIDAR_NUM; ++i) {
+                uavRssi[i] = 0x7f;
+            }
+            break;
         }
         default:
             break;
@@ -158,6 +212,7 @@ void InitTask(void){
         finishFlag[i] = false;
         uavSendC[i] = 0;
         uavReceiveC[i] = 0;
+        uavRssi[i] = 0x7F;
     }
     mapInit();
     packet.data[0] = -1;
