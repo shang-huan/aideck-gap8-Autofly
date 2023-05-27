@@ -116,7 +116,7 @@ void sendClusterRespPacket(){
     pi_time_wait_us(10 * 1000);        
 }
 
-void sendExploreRespPacket(uint8_t destinationId){
+void sendExploreRespPacket(uint8_t destinationId, uint8_t seq){
     Autofly_packet_t autofly_packet_send;
     autofly_packet_send.sourceId = AIDECK_ID;
     autofly_packet_send.destinationId = cluster_id;
@@ -124,7 +124,7 @@ void sendExploreRespPacket(uint8_t destinationId){
     autofly_packet_send.packetType = EXPLORE_RESP;
     
     explore_resp_packet_t explore_resp_packet_send;
-    explore_resp_packet_send.seq = explore_req_packet.seq;
+    explore_resp_packet_send.seq = seq;
     explore_resp_packet_send.exploreResponsePayload.nextpoint = uavs[destinationId].next_point;
     memcpy(autofly_packet_send.data, &explore_resp_packet_send, sizeof(explore_resp_packet_t));
     autofly_packet_send.length = AUTOFLY_PACKET_HEAD_LENGTH + sizeof(explore_resp_packet_t);
@@ -147,7 +147,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
             uavSendC[autofly_packet->sourceId] = mapping_req_packet.seq;
             ++uavReceiveC[autofly_packet->sourceId];
             cpxPrintToConsole(LOG_TO_CRTP, "uav%d Packet loss rate:%.2f%%\n",autofly_packet->sourceId,100.0*(uavSendC[autofly_packet->sourceId]-uavReceiveC[autofly_packet->sourceId])/uavSendC[autofly_packet->sourceId]);
-            UpdateMap(&octoMapData,&(mapping_req_packet.mappingRequestPayload),autofly_packet->sourceId);
+            UpdateMap(&octoMapData,&(mapping_req_packet.mappingRequestPayload[0]),autofly_packet->sourceId);
             break;
         }
         case EXPLORE_REQ:
@@ -156,7 +156,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
             memcpy(&explore_req_packet, autofly_packet->data, sizeof(explore_req_packet_t));
             uavs[autofly_packet->sourceId].uavRange = explore_req_packet.exploreRequestPayload.uavRange;
             if(CalNextPoint(&uavs[autofly_packet->sourceId],&octoMapData)){
-                sendExploreRespPacket(autofly_packet->sourceId);
+                sendExploreRespPacket(autofly_packet->sourceId,explore_req_packet.seq);
             }
             else{
                 cpxPrintToConsole(LOG_TO_CRTP, "[EXPLORE_REQ]No Next Point\n");

@@ -63,7 +63,7 @@ typedef struct
 typedef struct 
 {
     uint16_t seq;
-    coordinateF_t rssi;
+    uint8_t rssi;
 }cluster_req_packet_t;
 
 typedef struct 
