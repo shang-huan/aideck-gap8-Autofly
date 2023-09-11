@@ -5,11 +5,12 @@
 #include "octoMap.h"
 #include "octoTree.h"
 #include "communicate.h"
-#include "control_tool.h"
+// #include "control_tool.h"
+#include "control_tool_mul.h"
 #define GAP8Edge 0x3F
 #define AIDECK_ID 0x7E
 #define FINISH_NUM 0xFFFF
-#define UAVS_LIDAR_NUM 3
+
 
 static CPXPacket_t packet;
 static Autofly_packet_t autofly_packet;

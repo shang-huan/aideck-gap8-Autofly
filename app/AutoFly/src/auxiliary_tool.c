@@ -44,6 +44,7 @@ void inituavControl(uavControl_t* uavControl){
     }
     uavControl->flag_jump = false;
     uavControl->Jump_Dir = rangeFront;
+    uavControl->Jump_Rest_Step = 0;
 }
 
 rangeDirection_t GetRandomDir(example_measure_t *measurement)

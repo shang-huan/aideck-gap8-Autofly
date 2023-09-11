@@ -12,10 +12,15 @@
 #define MAX_LOOP 5  // The number of judgments that trigger jumping out of the local optimum
 #define WINDOW_SIZE 30 
 #define TIMES_JUMP 3
+#define JUMP_MAX_STEP 4
 
 #define PROBABILITY_MEM(octomap) (double)octomap->octoNodeSet->length / NODE_SET_SIZE
 #define PRESENT_JUMP 2
 #define SPEED 0.25
+
+//control_tool config
+#define UAVS_LIDAR_NUM 3
+#define SAFETY_D 30
 
 //octomap config
 #define TREE_CENTER_X 128

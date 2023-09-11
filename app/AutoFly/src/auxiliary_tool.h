@@ -50,6 +50,7 @@ typedef struct uavControl_t
     
     bool flag_jump;
     rangeDirection_t Jump_Dir;
+    uint8_t Jump_Rest_Step;
 }uavControl_t;
 
 
