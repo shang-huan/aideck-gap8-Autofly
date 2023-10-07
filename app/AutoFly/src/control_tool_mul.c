@@ -51,7 +51,7 @@ bool CalBestCandinates(octoMap_t *octoMap,uavControl_t* uavControl,uavControl_t*
     CalCandidates(candinates, &uavControl->uavRange.measurement, &uavControl->uavRange.current_point);
     max_candinateCost = 0;
     short dir_next = -1;
-    float min_distance = 0;
+    double min_distance = 0;
     for(int i = 0;i<6;++i){
         item_candinateCost = 0;
         item_sum.cost_prune = 0;
@@ -73,7 +73,7 @@ bool CalBestCandinates(octoMap_t *octoMap,uavControl_t* uavControl,uavControl_t*
         {
             item_sum.income_info = DISCIPLINE;
         }
-        min_distance = CalMinDistance(uavs, &candinates[i]);
+        min_distance = CalMinDistance(uavControl, uavs, &candinates[i]);
         item_candinateCost = (double)uavControl->direction_weight[i] * (PROBABILITY_MEM(octoMap) * item_sum.cost_prune * COST_PRUNE_TIMES +
                                                     (1.0 - PROBABILITY_MEM(octoMap)) * item_sum.income_info * INCOME_INFO_TIMES);
         item_candinateCost = CalAvoidWeight(min_distance) * item_candinateCost;
@@ -95,27 +95,33 @@ bool CalBestCandinates(octoMap_t *octoMap,uavControl_t* uavControl,uavControl_t*
     }
 }
 
-bool JumpLocalOp(uavControl_t *uavControl){
+bool JumpLocalOp(uavControl_t *uavControl,uavControl_t ** uavs){
     // rangeDirection_t dir = rand()%6;
     float length = Myfmin(uavControl->uavRange.measurement.data[uavControl->Jump_Dir],300);
     // coordinateF_t item_start_point = {current_point->x,current_point->y,current_point->z};
     coordinateF_t item_end_point;
-    if(length > STRIDE + AVOID_DISTANCE){
+    if(length > STRIDE + AVOID_DISTANCE && uavControl->Jump_Rest_Step > 0){
         // cal_PointByLength(STRIDE, -1 * measurement->pitch, measurement->roll, measurement->yaw, &item_start_point, Jump_Dir, &item_end_point);
         cal_PointByLength(STRIDE, -1 * uavControl->uavRange.measurement.pitch, uavControl->uavRange.measurement.roll, uavControl->uavRange.measurement.yaw, &uavControl->uavRange.current_point, uavControl->Jump_Dir, &item_end_point);
+        if(CalMinDistance(uavControl, uavs, &item_end_point) < SAFE_DISTANCE){
+            uavControl->flag_jump = false;
+            return false;
+        }
         uavControl->next_point = item_end_point;
         if(length < STRIDE * TIMES_JUMP + AVOID_DISTANCE){
             uavControl->flag_jump = false;
+            uavControl->Jump_Rest_Step = 0;
         }
         return true;
     }
     else{
         uavControl->flag_jump = false;
+        uavControl->Jump_Rest_Step = 0;
         return false;
     }
 }
 
-bool CalNextPoint(uavControl_t* uavControl,octoMap_t* octoMap){
+bool CalNextPoint(uavControl_t* uavControl,uavControl_t** uavs,octoMap_t* octoMap){
     short index_loop = (((int)uavControl->uavRange.current_point.x + (int)uavControl->uavRange.current_point.y + (int)uavControl->uavRange.current_point.z) / TREE_RESOLUTION) % WINDOW_SIZE;;
     ++uavControl->loops[index_loop];
     if (uavControl->loops[index_loop] < MAX_LOOP)
@@ -126,13 +132,14 @@ bool CalNextPoint(uavControl_t* uavControl,octoMap_t* octoMap){
             index_loop = pop(&uavControl->queue);
             --uavControl->loops[index_loop];
         }
-        if(!uavControl->flag_jump && !CalBestCandinates(octoMap, uavControl)){
+        if(!uavControl->flag_jump && !CalBestCandinates(octoMap, uavControl, uavs)){
             uavControl->Jump_Dir = GetRandomDir(&uavControl->uavRange.measurement);
             if(uavControl->Jump_Dir == -1){
                 cpxPrintToConsole(LOG_TO_CRTP,"no next Jump_Dir\n");
                 return false;
             }
             uavControl->flag_jump = true;
+            uavControl->Jump_Rest_Step = JUMP_MAX_STEP;
         }
     }
     else
@@ -148,25 +155,29 @@ bool CalNextPoint(uavControl_t* uavControl,octoMap_t* octoMap){
             return false;
         }
         uavControl->flag_jump = true;
+        uavControl->Jump_Rest_Step = JUMP_MAX_STEP;
     }
     if(uavControl->flag_jump){
-        if(!JumpLocalOp(uavControl)){
+        if(!JumpLocalOp(uavControl,uavs)){
             --uavControl->loops[index_loop];
-            return CalNextPoint(uavControl, octoMap);
+            return CalNextPoint(uavControl, uavs, octoMap);
         }
     }
     return true;
 }
 
-float CalMinDistance(uavControl_t** uavs, coordinateF_t* point){
+double CalMinDistance(uavControl_t* uavControl,uavControl_t** uavs, coordinateF_t* point){
     float min_distance = 30000;
     float distance = 0;
-    for(int i = 0;i<uav_num;++i){
-        distance = cal_Distance(&uavs[i]->uavRange.current_point, point);
+    for(int i = 0;i<MAX_MULTIRANGER_UAV_NUM;++i){
+        if(uavs[i] == uavControl){
+            continue;
+        }
+        distance = caldistance(&uavs[i]->uavRange.current_point, point);
         if(distance < min_distance){
             min_distance = distance;
         }
-        distance = cal_Distance(&uavs[i]->next_point, point);
+        distance = caldistance(&uavs[i]->next_point, point);
         if(distance < min_distance){
             min_distance = distance;
         }
@@ -174,12 +185,12 @@ float CalMinDistance(uavControl_t** uavs, coordinateF_t* point){
     return min_distance;
 }
 
-float CalAvoidWeight(float distance){
+double CalAvoidWeight(float distance){
     if(distance > DETECT_DISTANCE){
         return 1;
     }
     else if(distance > SAFE_DISTANCE){
-        return (float)(distance-SAFE_DISTANCE)/(DETECT_DISTANCE-SAFE_DISTANCE)
+        return (double)(distance-SAFE_DISTANCE)/(DETECT_DISTANCE-SAFE_DISTANCE);
     }
     else{
         return 0;

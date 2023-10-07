@@ -5,7 +5,7 @@
 #define TOP 65 //obstacle top
 #define BOTTOM 30 //obstacle bottom
 #define AVOID_DISTANCE 15 // obstacle avoidance distance
-#define DIRECTION_AWARD 1.2 // factor of direction reward 
+#define DIRECTION_AWAR#D 1.2 // factor of direction reward 
 #define DISCIPLINE 0 // Penalty number without information entropy
 #define INCOME_INFO_TIMES 1 // coefficient of information entropy
 #define COST_PRUNE_TIMES 1 // coefficient of pruning benefit

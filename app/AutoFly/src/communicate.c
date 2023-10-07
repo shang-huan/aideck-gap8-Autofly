@@ -156,7 +156,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
             explore_req_packet_t explore_req_packet;
             memcpy(&explore_req_packet, autofly_packet->data, sizeof(explore_req_packet_t));
             uavs[autofly_packet->sourceId].uavRange = explore_req_packet.exploreRequestPayload.uavRange;
-            if(CalNextPoint(&uavs[autofly_packet->sourceId],&octoMapData)){
+            if(CalNextPoint(&uavs[autofly_packet->sourceId],&uavs,&octoMapData)){
                 sendExploreRespPacket(autofly_packet->sourceId,explore_req_packet.seq);
             }
             else{
