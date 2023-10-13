@@ -58,6 +58,7 @@ void inituavRange(uavRange_t* uavRange);
 void inituavControl(uavControl_t* uavControl);
 
 double caldistance(coordinate_t* A,coordinate_t* B);
+double caldistanceF(coordinateF_t *A, coordinateF_t *B);
 // bool ReliabilityTest(coordinateF_t* last, coordinateF_t* cur);
 // bool IsSameCell(coordinateF_t* last, coordinateF_t* cur);
 

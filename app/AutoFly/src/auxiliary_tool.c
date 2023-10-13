@@ -74,6 +74,11 @@ double caldistance(coordinate_t *A, coordinate_t *B)
     return sqrt(Mypow(A->x - B->x, 2) + Mypow(A->y - B->y, 2) + Mypow(A->z - B->z, 2));
 }
 
+double caldistanceF(coordinateF_t *A, coordinateF_t *B)
+{
+    return sqrt(Mypow(A->x - B->x, 2) + Mypow(A->y - B->y, 2) + Mypow(A->z - B->z, 2));
+}
+
 bool cal_Point(example_measure_t *measurement, coordinateF_t *start_point, rangeDirection_t dir, coordinateF_t *res)
 {
     float pitch = -1 * measurement->pitch;

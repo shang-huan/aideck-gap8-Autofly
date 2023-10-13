@@ -167,17 +167,17 @@ bool CalNextPoint(uavControl_t* uavControl,uavControl_t** uavs,octoMap_t* octoMa
 }
 
 double CalMinDistance(uavControl_t* uavControl,uavControl_t** uavs, coordinateF_t* point){
-    float min_distance = 30000;
-    float distance = 0;
-    for(int i = 0;i<MAX_MULTIRANGER_UAV_NUM;++i){
+    double min_distance = 30000;
+    double distance = 0;
+    for(int i = 0;i<UAVS_LIDAR_NUM;++i){
         if(uavs[i] == uavControl){
             continue;
         }
-        distance = caldistance(&uavs[i]->uavRange.current_point, point);
+        distance = caldistanceF(&uavs[i]->uavRange.current_point, point);
         if(distance < min_distance){
             min_distance = distance;
         }
-        distance = caldistance(&uavs[i]->next_point, point);
+        distance = caldistanceF(&uavs[i]->next_point, point);
         if(distance < min_distance){
             min_distance = distance;
         }
