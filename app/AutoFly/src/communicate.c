@@ -217,7 +217,9 @@ void InitTask(void){
     }
     mapInit();
     packet.data[0] = -1;
+    cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]Start\n");
     while(1) {
+        cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]Running\n");
         ReceiveAndSend();
         pi_time_wait_us(10 * 1000);
     }
