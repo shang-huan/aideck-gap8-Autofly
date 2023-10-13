@@ -19,6 +19,7 @@ typedef enum {
     rangeUp,
     rangeDown,
     RANGE_T_END,
+    rangeERROR,
 } rangeDirection_t;
 
 typedef struct

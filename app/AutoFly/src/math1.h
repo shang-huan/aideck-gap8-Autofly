@@ -9,3 +9,4 @@ double Mypow(double a,int n);
 double Mysin(double x);
 double Mycos(double x);
 int Myrand();
+double Mysqrt(double n);

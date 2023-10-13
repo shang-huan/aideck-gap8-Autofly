@@ -121,7 +121,7 @@ bool CalNextPoint(uavControl_t* uavControl,octoMap_t* octoMap){
         }
         if(!uavControl->flag_jump && !CalBestCandinates(octoMap, uavControl)){
             uavControl->Jump_Dir = GetRandomDir(&uavControl->uavRange.measurement);
-            if(uavControl->Jump_Dir == -1){
+            if(uavControl->Jump_Dir == rangeERROR){
                 cpxPrintToConsole(LOG_TO_CRTP,"no next Jump_Dir\n");
                 return false;
             }
@@ -136,7 +136,7 @@ bool CalNextPoint(uavControl_t* uavControl,octoMap_t* octoMap){
             uavControl->loops[i] = 0;
         }
         uavControl->Jump_Dir = GetRandomDir(&uavControl->uavRange.measurement);
-        if(uavControl->Jump_Dir == -1){
+        if(uavControl->Jump_Dir == rangeERROR){
             cpxPrintToConsole(LOG_TO_CRTP,"no next Jump_Dir\n");
             return false;
         }

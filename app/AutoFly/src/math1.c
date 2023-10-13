@@ -79,3 +79,23 @@ int Myrand(){
     next=next*1103515245+12345;
     return((unsigned)(next/65536)%32768);
 }
+
+double Mysqrt(double n) //用二分法 
+{ 
+    if(n<0) //小于0的按照你需要的处理 
+        return n; 
+    float mid,last; 
+    float low,up; 
+    low=0,up=n; 
+    mid=(low+up)/2; 
+    do
+    {
+        if(mid*mid>n)
+            up=mid; 
+        else 
+            low=mid;
+        last=mid;
+        mid=(up+low)/2; 
+    }while(abs(mid-last) > 0.0001);//精度控制
+    return mid; 
+}
