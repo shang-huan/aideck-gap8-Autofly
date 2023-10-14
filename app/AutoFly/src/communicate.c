@@ -140,7 +140,7 @@ void sendExploreRespPacket(uint8_t destinationId, uint8_t seq){
     autofly_packet_send->length = AUTOFLY_PACKET_HEAD_LENGTH + sizeof(explore_resp_packet_t);
 
     cpxInitRoute(CPX_T_GAP8, CPX_T_STM32, CPX_F_APP, &GAPTxSTM.route);
-    GAPTxSTM.dataLength = autofly_packet_send.length;
+    GAPTxSTM.dataLength = autofly_packet_send->length;
     cpxSendPacketBlocking(&GAPTxSTM);
     pi_time_wait_us(10 * 1000);
 }
