@@ -240,5 +240,6 @@ int main(void)
     pi_bsp_init();
     cpxInit();
     cpxEnableFunction(CPX_F_APP);
+    pi_time_wait_us(3000 * 1000);
     return pmsis_kickoff((void *)InitTask);
 }
