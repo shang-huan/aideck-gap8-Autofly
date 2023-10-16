@@ -199,6 +199,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
             break;
         }
         default:
+            cpxPrintToConsole(LOG_TO_CRTP, "[processAutoflyPacket]PacketType = %d,error\n", PacketType);
             break;
     }
 }
@@ -219,7 +220,7 @@ void ReceiveAndSend(void)
 }
 
 void InitTask(void){
-    pi_time_wait_us(2000 * 1000);
+    pi_time_wait_us(6000 * 1000);
     for (int i = 0; i < UAVS_LIDAR_NUM; ++i) {
         inituavControl(&uavs[i]);
         finishFlag[i] = false;
@@ -236,7 +237,7 @@ void InitTask(void){
     {
         ++i;
         sendExploreRespPacket(1,1);
-        pi_time_wait_us(200 * 1000);
+        pi_time_wait_us(500 * 1000);
     }
     //
     while(1) {
