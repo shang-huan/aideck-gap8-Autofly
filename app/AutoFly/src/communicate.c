@@ -127,6 +127,7 @@ void sendClusterRespPacket(){
 }
 
 void sendExploreRespPacket(uint8_t destinationId, uint8_t seq){
+    cpxPrintToConsole(LOG_TO_CRTP, "[sendExploreRespPacket]destinationId = %d, seq = %d\n", destinationId, seq);
     CPXPacket_t GAPTxSTM;
     Autofly_packet_t* autofly_packet_send = (Autofly_packet_t*)GAPTxSTM.data;
     autofly_packet_send->sourceId = AIDECK_ID;
