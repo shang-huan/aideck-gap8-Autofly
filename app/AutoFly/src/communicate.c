@@ -131,7 +131,8 @@ void sendExploreRespPacket(uint8_t destinationId, uint8_t seq){
     CPXPacket_t GAPTxSTM;
     Autofly_packet_t* autofly_packet_send = (Autofly_packet_t*)GAPTxSTM.data;
     autofly_packet_send->sourceId = AIDECK_ID;
-    autofly_packet_send->destinationId = cluster_id;
+    // autofly_packet_send->destinationId = cluster_id;
+    autofly_packet_send->destinationId = destinationId;
     autofly_packet_send->nextdestinationId = destinationId;
     autofly_packet_send->packetType = EXPLORE_RESP;
     
