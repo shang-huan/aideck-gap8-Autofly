@@ -218,6 +218,7 @@ void ReceiveAndSend(void)
 }
 
 void InitTask(void){
+    pi_time_wait_us(2000 * 1000);
     for (int i = 0; i < UAVS_LIDAR_NUM; ++i) {
         inituavControl(&uavs[i]);
         finishFlag[i] = false;
@@ -228,6 +229,15 @@ void InitTask(void){
     mapInit();
     packet.data[0] = -1;
     cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]Start\n");
+    //test coede
+    int i = 0;
+    while (i<10)
+    {
+        ++i;
+        sendExploreRespPacket(1,1);
+        pi_time_wait_us(200 * 1000);
+    }
+    //
     while(1) {
         cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]Running\n");
         ReceiveAndSend();
@@ -240,6 +250,5 @@ int main(void)
     pi_bsp_init();
     cpxInit();
     cpxEnableFunction(CPX_F_APP);
-    pi_time_wait_us(3000 * 1000);
     return pmsis_kickoff((void *)InitTask);
 }
