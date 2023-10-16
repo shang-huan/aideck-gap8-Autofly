@@ -131,6 +131,7 @@ void sendExploreRespPacket(uint8_t destinationId, uint8_t seq){
     CPXPacket_t GAPTxSTM;
     Autofly_packet_t* autofly_packet_send = (Autofly_packet_t*)GAPTxSTM.data;
     autofly_packet_send->sourceId = AIDECK_ID;
+    // 当前无蔟头模式
     // autofly_packet_send->destinationId = cluster_id;
     autofly_packet_send->destinationId = destinationId;
     autofly_packet_send->nextdestinationId = destinationId;
@@ -138,7 +139,7 @@ void sendExploreRespPacket(uint8_t destinationId, uint8_t seq){
     
     explore_resp_packet_t* explore_resp_packet_send = (explore_resp_packet_t*)autofly_packet_send->data;
     explore_resp_packet_send->seq = seq;
-    // explore_resp_packet_send->exploreResponsePayload.nextpoint = uavs[destinationId].next_point;
+    explore_resp_packet_send->exploreResponsePayload.nextpoint = uavs[destinationId].next_point;
     autofly_packet_send->length = AUTOFLY_PACKET_HEAD_LENGTH + sizeof(explore_resp_packet_t);
 
     cpxInitRoute(CPX_T_GAP8, CPX_T_STM32, CPX_F_APP, &GAPTxSTM.route);
@@ -157,8 +158,8 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
             memcpy(&mapping_req_packet, autofly_packet->data, sizeof(mapping_req_packet_t));
             uavSendC[autofly_packet->sourceId] = mapping_req_packet.seq;
             ++uavReceiveC[autofly_packet->sourceId];
-            // cpxPrintToConsole(LOG_TO_CRTP, "uav%d Packet loss rate:%.2f%%\n",autofly_packet->sourceId,100.0*(uavSendC[autofly_packet->sourceId]-uavReceiveC[autofly_packet->sourceId])/uavSendC[autofly_packet->sourceId]);
-            // UpdateMap(&octoMapData,&(mapping_req_packet.mappingRequestPayload[0]),autofly_packet->sourceId);
+            cpxPrintToConsole(LOG_TO_CRTP, "uav%d Packet loss rate:%.2f%%\n",autofly_packet->sourceId,100.0*(uavSendC[autofly_packet->sourceId]-uavReceiveC[autofly_packet->sourceId])/uavSendC[autofly_packet->sourceId]);
+            UpdateMap(&octoMapData,&(mapping_req_packet.mappingRequestPayload[0]),autofly_packet->sourceId);
             break;
         }
         case EXPLORE_REQ:
@@ -167,12 +168,12 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
             explore_req_packet_t explore_req_packet;
             memcpy(&explore_req_packet, autofly_packet->data, sizeof(explore_req_packet_t));
             uavs[autofly_packet->sourceId].uavRange = explore_req_packet.exploreRequestPayload.uavRange;
-            // if(CalNextPoint(&uavs[autofly_packet->sourceId],&uavs,&octoMapData)){
+            if(CalNextPoint(&uavs[autofly_packet->sourceId],&uavs,&octoMapData)){
                 sendExploreRespPacket(autofly_packet->sourceId,explore_req_packet.seq);
-            // }
-            // else{
-            //     cpxPrintToConsole(LOG_TO_CRTP, "[EXPLORE_REQ]No Next Point\n");
-            // }
+            }
+            else{
+                cpxPrintToConsole(LOG_TO_CRTP, "[EXPLORE_REQ]No Next Point\n");
+            }
             break;
         }
         case TERMINATE:
@@ -211,6 +212,7 @@ void ReceiveAndSend(void)
     // Packet Loss Rate Calculate Module
     // count and split packet from other UAV
     uint8_t sourceId = packet.data[0];
+    // ****** 要求修改无人机地址 *******
     if(sourceId >= UAVS_LIDAR_NUM){
         cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]sourceId = %d,error\n", sourceId);
         return;
@@ -232,19 +234,8 @@ void InitTask(void){
     mapInit();
     packet.data[0] = -1;
     cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]Start\n");
-    //test coede
-    int i = 0;
-    while (i<10)
-    {
-        ++i;
-        sendExploreRespPacket(1,1);
-        pi_time_wait_us(500 * 1000);
-    }
-    //
     while(1) {
-        cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]Running\n");
         ReceiveAndSend();
-        pi_time_wait_us(10 * 1000);
     }
 }
 
