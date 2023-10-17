@@ -169,7 +169,7 @@ bool CalNextPoint(uavControl_t* uavControl,uavControl_t** uavs,octoMap_t* octoMa
 double CalMinDistance(uavControl_t* uavControl,uavControl_t** uavs, coordinateF_t* point){
     double min_distance = 30000;
     double distance = 0;
-    for(int i = 0;i<UAVS_LIDAR_NUM;++i){
+    for(int i = 1;i<=UAVS_LIDAR_NUM;++i){
         if(uavs[i] == uavControl){
             continue;
         }

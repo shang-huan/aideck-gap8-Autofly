@@ -18,14 +18,14 @@ octoMap_t octoMapData;
 static bool HasPrinted=false;
 uint8_t cluster_id = 0x00;
 
-uavControl_t uavs[UAVS_LIDAR_NUM];
-bool finishFlag[UAVS_LIDAR_NUM];
-int uavSendC[UAVS_LIDAR_NUM];
-int uavReceiveC[UAVS_LIDAR_NUM];
-uint8_t uavRssi[UAVS_LIDAR_NUM];
+uavControl_t uavs[UAVS_LIDAR_NUM+1];
+bool finishFlag[UAVS_LIDAR_NUM+1];
+int uavSendC[UAVS_LIDAR_NUM+1];
+int uavReceiveC[UAVS_LIDAR_NUM+1];
+uint8_t uavRssi[UAVS_LIDAR_NUM+1];
 
 bool checkTerminate(){
-    for (int i = 0; i < UAVS_LIDAR_NUM; ++i) {
+    for (int i = 1; i <= UAVS_LIDAR_NUM; ++i) {
         if(!finishFlag[i]){
             return false;
         }
@@ -79,7 +79,7 @@ void sendSumUpInfo(){
 uint8_t CalBestCluster(){
     uint8_t bestCluster = 0;
     uint8_t bestRssi = 0x7f;
-    for(uint8_t i=0;i<UAVS_LIDAR_NUM;i++){
+    for(uint8_t i=1;i<=UAVS_LIDAR_NUM;i++){
         if(uavRssi[i]<bestRssi){
             bestRssi = uavRssi[i];
             bestCluster = i;
@@ -153,18 +153,18 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
     switch(PacketType){
         case MAPPING_REQ:
         {
-            cpxPrintToConsole(LOG_TO_CRTP, "[MAPPING_REQ] %d\n", autofly_packet->sourceId);
+            // cpxPrintToConsole(LOG_TO_CRTP, "[MAPPING_REQ] %d\n", autofly_packet->sourceId);
             mapping_req_packet_t mapping_req_packet;
             memcpy(&mapping_req_packet, autofly_packet->data, sizeof(mapping_req_packet_t));
             uavSendC[autofly_packet->sourceId] = mapping_req_packet.seq;
             ++uavReceiveC[autofly_packet->sourceId];
-            cpxPrintToConsole(LOG_TO_CRTP, "uav%d Packet loss rate:%.2f%%\n",autofly_packet->sourceId,100.0*(uavSendC[autofly_packet->sourceId]-uavReceiveC[autofly_packet->sourceId])/uavSendC[autofly_packet->sourceId]);
+            // cpxPrintToConsole(LOG_TO_CRTP, "uav%d Packet loss rate:%.2f%%\n",autofly_packet->sourceId,100.0*(uavSendC[autofly_packet->sourceId]-uavReceiveC[autofly_packet->sourceId])/uavSendC[autofly_packet->sourceId]);
             UpdateMap(&octoMapData,&(mapping_req_packet.mappingRequestPayload[0]),autofly_packet->sourceId);
             break;
         }
         case EXPLORE_REQ:
         {
-            cpxPrintToConsole(LOG_TO_CRTP, "[EXPLORE_REQ] %d\n", autofly_packet->sourceId);
+            // cpxPrintToConsole(LOG_TO_CRTP, "[EXPLORE_REQ] %d\n", autofly_packet->sourceId);
             explore_req_packet_t explore_req_packet;
             memcpy(&explore_req_packet, autofly_packet->data, sizeof(explore_req_packet_t));
             uavs[autofly_packet->sourceId].uavRange = explore_req_packet.exploreRequestPayload.uavRange;
@@ -195,7 +195,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
                 sendClusterRespPacket();
             }
             // init the uavRssi
-            for (int i = 0; i < UAVS_LIDAR_NUM; ++i) {
+            for (int i = 1; i <= UAVS_LIDAR_NUM; ++i) {
                 uavRssi[i] = 0x7f;
             }
             break;
@@ -213,7 +213,7 @@ void ReceiveAndSend(void)
     // count and split packet from other UAV
     uint8_t sourceId = packet.data[0];
     // ****** 要求修改无人机地址 *******
-    if(sourceId >= UAVS_LIDAR_NUM){
+    if(sourceId > UAVS_LIDAR_NUM){
         cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]sourceId = %d,error\n", sourceId);
         return;
     }
@@ -224,7 +224,7 @@ void ReceiveAndSend(void)
 
 void InitTask(void){
     pi_time_wait_us(6000 * 1000);
-    for (int i = 0; i < UAVS_LIDAR_NUM; ++i) {
+    for (int i = 1; i <= UAVS_LIDAR_NUM; ++i) {
         inituavControl(&uavs[i]);
         finishFlag[i] = false;
         uavSendC[i] = 0;
