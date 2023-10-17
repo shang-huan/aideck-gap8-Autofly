@@ -155,7 +155,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
         {
             // cpxPrintToConsole(LOG_TO_CRTP, "[MAPPING_REQ] %d\n", autofly_packet->sourceId);
             mapping_req_packet_t mapping_req_packet;
-            memcpy(&mapping_req_packet, autofly_packet->data, sizeof(mapping_req_packet_t));
+            memcpy(&mapping_req_packet, &autofly_packet->data, sizeof(mapping_req_packet_t));
             uavSendC[autofly_packet->sourceId] = mapping_req_packet.seq;
             ++uavReceiveC[autofly_packet->sourceId];
             // cpxPrintToConsole(LOG_TO_CRTP, "uav%d Packet loss rate:%.2f%%\n",autofly_packet->sourceId,100.0*(uavSendC[autofly_packet->sourceId]-uavReceiveC[autofly_packet->sourceId])/uavSendC[autofly_packet->sourceId]);
@@ -166,7 +166,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
         {
             // cpxPrintToConsole(LOG_TO_CRTP, "[EXPLORE_REQ] %d\n", autofly_packet->sourceId);
             explore_req_packet_t explore_req_packet;
-            memcpy(&explore_req_packet, autofly_packet->data, sizeof(explore_req_packet_t));
+            memcpy(&explore_req_packet, &autofly_packet->data, sizeof(explore_req_packet_t));
             uavs[autofly_packet->sourceId].uavRange = explore_req_packet.exploreRequestPayload.uavRange;
             if(CalNextPoint(&uavs[autofly_packet->sourceId],&uavs,&octoMapData)){
                 sendExploreRespPacket(autofly_packet->sourceId,explore_req_packet.seq);
@@ -189,7 +189,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
         case CLUSTER_REQ:
         {
             cluster_req_packet_t cluster_req_packet;
-            memcpy(&cluster_req_packet, autofly_packet->data, sizeof(cluster_req_packet_t));
+            memcpy(&cluster_req_packet, &autofly_packet->data, sizeof(cluster_req_packet_t));
             uavRssi[autofly_packet->sourceId] = cluster_req_packet.rssi;
             if(autofly_packet->sourceId == cluster_id){
                 sendClusterRespPacket();
@@ -217,9 +217,13 @@ void ReceiveAndSend(void)
         cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]sourceId = %d,error\n", sourceId);
         return;
     }
-    Autofly_packet_t autofly_packet;
-    memcpy(&autofly_packet, packet.data, sizeof(packet.dataLength));
-    processAutoflyPacket(&autofly_packet);
+    cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]sourceId = %d\n", sourceId);
+    // uint8_t packetType = packet.data[3];
+    // cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]packetType = %d\n", packetType);
+    // Autofly_packet_t autofly_packet;
+    // memcpy(&autofly_packet, &packet.data, sizeof(packet.dataLength));
+    // processAutoflyPacket(&autofly_packet);
+    processAutoflyPacket((Autofly_packet_t*)packet.data);
     packet.data[0] = -1;
 }
 
