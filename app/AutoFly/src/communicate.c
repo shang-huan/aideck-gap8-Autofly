@@ -93,16 +93,16 @@ void mapInit()
     octoMap_t* octoMap = &octoMapData;
     octoMapInit(octoMap);
     // print octoMap
-    cpxPrintToConsole(LOG_TO_CRTP, "[MapInit]sizeof(octoNode) = %lu\n", sizeof(octoNode_t));
-    cpxPrintToConsole(LOG_TO_CRTP, "[MapInit]octoTree->center = (%d, %d, %d), origin = (%d, %d, %d), resolution = %d, maxDepth = %d, width = %d\n", 
-        octoMap->octoTree->center.x, octoMap->octoTree->center.y, octoMap->octoTree->center.z, 
-        octoMap->octoTree->origin.x, octoMap->octoTree->origin.y, octoMap->octoTree->origin.z,
-        octoMap->octoTree->resolution, octoMap->octoTree->maxDepth, octoMap->octoTree->width);
-    cpxPrintToConsole(LOG_TO_CRTP, "[MapInit]root->children = %d, logOdds = %d, isLeaf = %d\n", 
-        octoMap->octoTree->root->children, octoMap->octoTree->root->logOdds, octoMap->octoTree->root->isLeaf);
-    cpxPrintToConsole(LOG_TO_CRTP, "[MapInit]octoNodeSet->freeQE = %d, fullQE = %d, length = %d, numFree = %d, numOccupied = %d\n", 
-        octoMap->octoNodeSet->freeQueueEntry, octoMap->octoNodeSet->fullQueueEntry, 
-        octoMap->octoNodeSet->length, octoMap->octoNodeSet->numFree, octoMap->octoNodeSet->numOccupied);
+    // cpxPrintToConsole(LOG_TO_CRTP, "[MapInit]sizeof(octoNode) = %lu\n", sizeof(octoNode_t));
+    // cpxPrintToConsole(LOG_TO_CRTP, "[MapInit]octoTree->center = (%d, %d, %d), origin = (%d, %d, %d), resolution = %d, maxDepth = %d, width = %d\n", 
+    //     octoMap->octoTree->center.x, octoMap->octoTree->center.y, octoMap->octoTree->center.z, 
+    //     octoMap->octoTree->origin.x, octoMap->octoTree->origin.y, octoMap->octoTree->origin.z,
+    //     octoMap->octoTree->resolution, octoMap->octoTree->maxDepth, octoMap->octoTree->width);
+    // cpxPrintToConsole(LOG_TO_CRTP, "[MapInit]root->children = %d, logOdds = %d, isLeaf = %d\n", 
+    //     octoMap->octoTree->root->children, octoMap->octoTree->root->logOdds, octoMap->octoTree->root->isLeaf);
+    // cpxPrintToConsole(LOG_TO_CRTP, "[MapInit]octoNodeSet->freeQE = %d, fullQE = %d, length = %d, numFree = %d, numOccupied = %d\n", 
+    //     octoMap->octoNodeSet->freeQueueEntry, octoMap->octoNodeSet->fullQueueEntry, 
+    //     octoMap->octoNodeSet->length, octoMap->octoNodeSet->numFree, octoMap->octoNodeSet->numOccupied);
 }
 
 void sendClusterRespPacket(){
@@ -208,6 +208,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
 
 void ReceiveAndSend(void)
 {
+    cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]Start\n");
     cpxReceivePacketBlocking(CPX_F_APP, &packet);
     // Packet Loss Rate Calculate Module
     // count and split packet from other UAV
@@ -240,13 +241,15 @@ void InitTask(void){
     packet.data[0] = -1;
     cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]Start\n");
 
-    for(int i = 0;i<2;++i){
-        sendExploreRespPacket(100,0);
-        pi_time_wait_us(2000 * 1000);
+    sendExploreRespPacket(100,0);
+    pi_time_wait_us(2000 * 1000);
+
+    for(int i = 0;i<5;++i){
+        cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]testing\n");
+        pi_time_wait_us(1000 * 1000);
     }
 
     while(1) {
-        cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]ReceiveAndSend looping\n");
         ReceiveAndSend();
         pi_time_wait_us(10 * 1000);
     }
