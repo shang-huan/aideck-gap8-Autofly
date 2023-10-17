@@ -228,6 +228,7 @@ void ReceiveAndSend(void)
 }
 
 void InitTask(void){
+    pi_time_wait_us(4000 * 1000);
     for (int i = 1; i <= UAVS_LIDAR_NUM; ++i) {
         inituavControl(&uavs[i]);
         finishFlag[i] = false;
