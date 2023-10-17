@@ -239,13 +239,15 @@ void InitTask(void){
     packet.data[0] = -1;
     cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]Start\n");
 
-    for(int i = 0;i<10;++i){
+    for(int i = 0;i<2;++i){
         sendExploreRespPacket(100,0);
-        pi_time_wait_us(500 * 1000);
+        pi_time_wait_us(2000 * 1000);
     }
 
     while(1) {
+        cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]ReceiveAndSend looping\n");
         ReceiveAndSend();
+        pi_time_wait_us(10 * 1000);
     }
 }
 
