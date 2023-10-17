@@ -244,9 +244,9 @@ void InitTask(void){
     sendExploreRespPacket(100,0);
     pi_time_wait_us(2000 * 1000);
 
-    for(int i = 0;i<5;++i){
+    for(int i = 0;i<500;++i){
         cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]testing\n");
-        pi_time_wait_us(1000 * 1000);
+        pi_time_wait_us(10 * 1000);
     }
 
     while(1) {
