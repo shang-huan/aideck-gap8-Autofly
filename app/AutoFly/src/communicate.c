@@ -13,7 +13,7 @@
 
 
 static CPXPacket_t packet;
-static Autofly_packet_t autofly_packet;
+// static Autofly_packet_t autofly_packet;
 octoMap_t octoMapData;
 static bool HasPrinted=false;
 uint8_t cluster_id = 0x00;
@@ -217,6 +217,7 @@ void ReceiveAndSend(void)
         cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]sourceId = %d,error\n", sourceId);
         return;
     }
+    Autofly_packet_t autofly_packet;
     memcpy(&autofly_packet, packet.data, sizeof(packet.dataLength));
     processAutoflyPacket(&autofly_packet);
     packet.data[0] = -1;
@@ -238,7 +239,7 @@ void InitTask(void){
         sendExploreRespPacket(100,0);
         pi_time_wait_us(500 * 1000);
     }
-    
+
     while(1) {
         ReceiveAndSend();
     }
