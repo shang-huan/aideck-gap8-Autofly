@@ -154,22 +154,22 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
         case MAPPING_REQ:
         {
             // cpxPrintToConsole(LOG_TO_CRTP, "[MAPPING_REQ] %d\n", autofly_packet->sourceId);
-            mapping_req_packet_t mapping_req_packet;
-            memcpy(&mapping_req_packet, &autofly_packet->data, sizeof(mapping_req_packet_t));
-            uavSendC[autofly_packet->sourceId] = mapping_req_packet.seq;
+            mapping_req_packet_t* mapping_req_packet = (mapping_req_packet_t*)autofly_packet->data;
+            // memcpy(&mapping_req_packet, &autofly_packet->data, sizeof(mapping_req_packet_t));
+            uavSendC[autofly_packet->sourceId] = mapping_req_packet->seq;
             ++uavReceiveC[autofly_packet->sourceId];
             // cpxPrintToConsole(LOG_TO_CRTP, "uav%d Packet loss rate:%.2f%%\n",autofly_packet->sourceId,100.0*(uavSendC[autofly_packet->sourceId]-uavReceiveC[autofly_packet->sourceId])/uavSendC[autofly_packet->sourceId]);
-            UpdateMap(&octoMapData,&(mapping_req_packet.mappingRequestPayload[0]),autofly_packet->sourceId);
+            UpdateMap(&octoMapData,&(mapping_req_packet->mappingRequestPayload[0]),autofly_packet->sourceId);
             break;
         }
         case EXPLORE_REQ:
         {
             // cpxPrintToConsole(LOG_TO_CRTP, "[EXPLORE_REQ] %d\n", autofly_packet->sourceId);
-            explore_req_packet_t explore_req_packet;
-            memcpy(&explore_req_packet, &autofly_packet->data, sizeof(explore_req_packet_t));
-            uavs[autofly_packet->sourceId].uavRange = explore_req_packet.exploreRequestPayload.uavRange;
+            explore_req_packet_t* explore_req_packet = (explore_req_packet_t*)autofly_packet->data;
+            // memcpy(&explore_req_packet, &autofly_packet->data, sizeof(explore_req_packet_t));
+            uavs[autofly_packet->sourceId].uavRange = explore_req_packet->exploreRequestPayload.uavRange;
             if(CalNextPoint(&uavs[autofly_packet->sourceId],&uavs,&octoMapData)){
-                sendExploreRespPacket(autofly_packet->sourceId,explore_req_packet.seq);
+                sendExploreRespPacket(autofly_packet->sourceId,explore_req_packet->seq);
             }
             else{
                 cpxPrintToConsole(LOG_TO_CRTP, "[EXPLORE_REQ]No Next Point\n");
@@ -219,8 +219,8 @@ void ReceiveAndSend(void)
         return;
     }
     cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]sourceId = %d\n", sourceId);
-    // uint8_t packetType = packet.data[3];
-    // cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]packetType = %d\n", packetType);
+    uint8_t packetType = packet.data[3];
+    cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]packetType = %d\n", packetType);
     // Autofly_packet_t autofly_packet;
     // memcpy(&autofly_packet, &packet.data, sizeof(packet.dataLength));
     // processAutoflyPacket(&autofly_packet);
@@ -242,12 +242,11 @@ void InitTask(void){
     cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]Start\n");
 
     sendExploreRespPacket(100,0);
-    pi_time_wait_us(2000 * 1000);
-
-    for(int i = 0;i<500;++i){
-        cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]testing\n");
-        pi_time_wait_us(10 * 1000);
-    }
+    pi_time_wait_us(4000 * 1000);
+    // for(int i = 0;i<500;++i){
+    //     cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]testing\n");
+    //     pi_time_wait_us(10 * 1000);
+    // }
 
     while(1) {
         ReceiveAndSend();
