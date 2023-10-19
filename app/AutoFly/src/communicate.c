@@ -212,19 +212,19 @@ void ReceiveAndSend(void)
     cpxReceivePacketBlocking(CPX_F_APP, &packet);
     // Packet Loss Rate Calculate Module
     // count and split packet from other UAV
-    uint8_t sourceId = packet.data[0];
+    Autofly_packet_t* item = (Autofly_packet_t*)packet.data;
+    uint8_t sourceId = item->sourceId;
     // ****** 要求修改无人机地址 *******
     if(sourceId > UAVS_LIDAR_NUM){
         cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]sourceId = %d,error\n", sourceId);
         return;
     }
-    cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]sourceId = %d\n", sourceId);
-    uint8_t packetType = packet.data[3];
-    cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]packetType = %d\n", packetType);
-    // Autofly_packet_t autofly_packet;
-    // memcpy(&autofly_packet, &packet.data, sizeof(packet.dataLength));
-    // processAutoflyPacket(&autofly_packet);
-    processAutoflyPacket((Autofly_packet_t*)packet.data);
+    // uint8_t packetType = packet.data[3];
+    // cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]packetType = %d\n", packetType);
+    Autofly_packet_t autofly_packet;
+    memcpy(&autofly_packet, &packet.data, sizeof(Autofly_packet_t));
+    processAutoflyPacket(&autofly_packet);
+    // processAutoflyPacket((Autofly_packet_t*)packet.data);
     packet.data[0] = -1;
 }
 
