@@ -127,7 +127,7 @@ void sendClusterRespPacket(){
 }
 
 void sendExploreRespPacket(uint8_t destinationId, uint8_t seq){
-    cpxPrintToConsole(LOG_TO_CRTP, "[sendExploreRespPacket]destinationId = %d, seq = %d\n", destinationId, seq);
+    // cpxPrintToConsole(LOG_TO_CRTP, "[sendExploreRespPacket]destinationId = %d, seq = %d\n", destinationId, seq);
     CPXPacket_t GAPTxSTM;
     Autofly_packet_t* autofly_packet_send = (Autofly_packet_t*)GAPTxSTM.data;
     autofly_packet_send->sourceId = AIDECK_ID;
@@ -169,6 +169,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
             // memcpy(&explore_req_packet, &autofly_packet->data, sizeof(explore_req_packet_t));
             uavs[autofly_packet->sourceId].uavRange = explore_req_packet->exploreRequestPayload.uavRange;
             if(CalNextPoint(&uavs[autofly_packet->sourceId],&uavs,&octoMapData)){
+                cpxPrintToConsole(LOG_TO_CRTP, "[EXPLORE_REQ]Next Point = (%.1f,%.1f,%.1f)\n", uavs[autofly_packet->sourceId].next_point.x,uavs[autofly_packet->sourceId].next_point.y,uavs[autofly_packet->sourceId].next_point.z);
                 sendExploreRespPacket(autofly_packet->sourceId,explore_req_packet->seq);
             }
             else{

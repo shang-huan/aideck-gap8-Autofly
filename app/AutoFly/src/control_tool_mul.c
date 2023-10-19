@@ -76,14 +76,15 @@ bool CalBestCandinates(octoMap_t *octoMap,uavControl_t* uavControl,uavControl_t*
         min_distance = CalMinDistance(uavControl, uavs, &candinates[i]);
         item_candinateCost = (double)uavControl->direction_weight[i] * (PROBABILITY_MEM(octoMap) * item_sum.cost_prune * COST_PRUNE_TIMES +
                                                     (1.0 - PROBABILITY_MEM(octoMap)) * item_sum.income_info * INCOME_INFO_TIMES);
-        cpxPrintToConsole(LOG_TO_CRTP, "item_candinateCost_pre:%f\n", item_candinateCost);
+        // cpxPrintToConsole(LOG_TO_CRTP, "item_candinateCost_pre:%f\n", item_candinateCost);
         item_candinateCost = CalAvoidWeight(min_distance) * item_candinateCost;
-        cpxPrintToConsole(LOG_TO_CRTP, "item_candinateCost_re:%f\n", item_candinateCost);
+        // cpxPrintToConsole(LOG_TO_CRTP, "item_candinateCost_re:%f\n", item_candinateCost);
         if (item_candinateCost > max_candinateCost){
             dir_next = i;
             max_candinateCost = item_candinateCost;
         }
     }
+    
     if(dir_next != -1){
         uavControl->direction_weight[dir_next] = DIRECTION_AWARD;
         uavControl->direction_weight[(uavControl->lastdir)] = 1;
