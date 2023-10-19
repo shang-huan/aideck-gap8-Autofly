@@ -12,8 +12,8 @@
 #include "math1.h"
 #include "math.h"
 
-#define DETECT_DISTANCE 50.0
-#define SAFE_DISTANCE 30.0
+#define DETECT_DISTANCE 40.0
+#define SAFE_DISTANCE 20.0
 
 
 void UpdateMap(octoMap_t *octoMap, mapping_req_payload_t *mappingRequestPayload,uint8_t uav_id)
