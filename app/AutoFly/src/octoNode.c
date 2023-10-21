@@ -140,8 +140,8 @@ coordinate_t calOrigin(uint8_t index, coordinate_t origin, uint16_t width)
  */
 void octoNodeUpdate(octoNode_t *octoNode, octoMap_t *octoMap, coordinate_t *point, uint8_t diffLogOdds, coordinate_t origin, uint16_t width, uint8_t maxDepth, uint8_t merge_num, uint8_t uav_id)
 {
-    octoNode->origin = origin;
-    octoNode->width = width;
+    // octoNode->origin = origin;
+    // octoNode->width = width;
     if (maxDepth == 0)
     {
         for(int k = 0; k< merge_num ; ++k)

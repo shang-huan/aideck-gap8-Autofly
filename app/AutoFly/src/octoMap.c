@@ -8,6 +8,8 @@
 #include "octoTree.h"
 #include "octoNodeSet.h"
 #include "cpx.h"
+#include "pmsis.h"
+#include "bsp/bsp.h"
 
 #define FILE_LENGTH 1000
 
@@ -51,13 +53,17 @@ void recursiveExportOctoMap(octoMap_t* octoMap, octoNode_t* node, coordinate_t o
     if (node->isLeaf) {
         if(LOG_ODDS_FREE == node->logOdds ){
             ++count;
-            cpxPrintToConsole(LOG_TO_CRTP,"[app]FN:(%.2f,%.2f,%.2f),seq:%d,width:%d\n", (double)origin.x, (double)origin.y, (double)origin.z, count, width);
-            vTaskDelay(100);
+            // cpxPrintToConsole(LOG_TO_CRTP,"[app]FN:(%.2f,%.2f,%.2f),seq:%d,width:%d,uav_id:%d\n", (double)origin.x, (double)origin.y, (double)origin.z, count, width,node->uav_id);
+            cpxPrintToConsole(LOG_TO_CRTP,"F(%.2f,%.2f,%.2f),(%d,%d,%d)\n", (double)origin.x, (double)origin.y, (double)origin.z, count, width,node->uav_id);
+            // vTaskDelay(10);
+            pi_time_wait_us(1 * 1000);
         }
         else if(LOG_ODDS_OCCUPIED == node->logOdds){
             ++count;
-            cpxPrintToConsole(LOG_TO_CRTP,"[app]ON:(%.2f,%.2f,%.2f),seq:%d,width:%d\n", (double)origin.x, (double)origin.y, (double)origin.z, count, width);
-            vTaskDelay(100);
+            // cpxPrintToConsole(LOG_TO_CRTP,"[app]ON:(%.2f,%.2f,%.2f),seq:%d,width:%d,uav_id:%d\n", (double)origin.x, (double)origin.y, (double)origin.z, count, width,node->uav_id);
+            cpxPrintToConsole(LOG_TO_CRTP,"O(%.2f,%.2f,%.2f),(%d,%d,%d)", (double)origin.x, (double)origin.y, (double)origin.z, count, width,node->uav_id);
+            // vTaskDelay(10);
+            pi_time_wait_us(1 * 1000);
         }
         // cpxPrintToConsole(LOG_TO_CRTP,"node->x = %d, node->y = %d, node->z = %d, node->width = %d, node->logOdds = %d\n", node->origin.x, node->origin.y, node->origin.z, width, node->logOdds);
         // fprintf(fp, "%d, %d, %d, %d, %d\n", node->origin.x, node->origin.y, node->origin.z, width, node->logOdds);

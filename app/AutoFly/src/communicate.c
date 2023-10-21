@@ -45,34 +45,35 @@ void sendSumUpInfo(){
         (float)100*(uavSendC[0]-uavReceiveC[0])/uavSendC[0],
         (float)100*(uavSendC[1]-uavReceiveC[1])/uavSendC[1],
         (float)100*(uavSendC[2]-uavReceiveC[2])/uavSendC[2]);
-    while(nodesCount < length){
-        nodesCount++;
-        cpxPrintToConsole(LOG_TO_CRTP, "[SumUpInfo]Seq = %d\n",nodesCount);
-        for(uint8_t i=0;i<8;i++){
-            if (cur->data[i].logOdds == LOG_ODDS_FREE) {
-                cpxPrintToConsole(LOG_TO_CRTP, "[FN](%d,%d,%d)#%d@%d$%d\n", 
-                    cur->data[i].origin.x,
-                    cur->data[i].origin.y,
-                    cur->data[i].origin.z,
-                    cur->data[i].logOdds,
-                    cur->data[i].width,
-                    cur->data[i].uav_id);
-                pi_time_wait_us(1 * 1000);
-            }
-            if (cur->data[i].logOdds == LOG_ODDS_OCCUPIED) {
-                cpxPrintToConsole(LOG_TO_CRTP, "[ON](%d,%d,%d)#%d@%d$%d\n",
-                    cur->data[i].origin.x,
-                    cur->data[i].origin.y,
-                    cur->data[i].origin.z,
-                    cur->data[i].logOdds,
-                    cur->data[i].width,
-                    cur->data[i].uav_id);
-                pi_time_wait_us(1 * 1000);
-            }
-        }
-        pi_time_wait_us(10 * 1000);
-        cur = base+cur->next;
-    }
+    recursiveExportOctoMap(&octoMapData,octoMapData.octoTree->root,octoMapData.octoTree->origin,octoMapData.octoTree->width);
+    // while(nodesCount < length){
+    //     nodesCount++;
+    //     cpxPrintToConsole(LOG_TO_CRTP, "[SumUpInfo]Seq = %d\n",nodesCount);
+    //     for(uint8_t i=0;i<8;i++){
+    //         if (cur->data[i].logOdds == LOG_ODDS_FREE) {
+    //             cpxPrintToConsole(LOG_TO_CRTP, "[FN](%d,%d,%d)#%d@%d$%d\n", 
+    //                 cur->data[i].origin.x,
+    //                 cur->data[i].origin.y,
+    //                 cur->data[i].origin.z,
+    //                 cur->data[i].logOdds,
+    //                 cur->data[i].width,
+    //                 cur->data[i].uav_id);
+    //             pi_time_wait_us(1 * 1000);
+    //         }
+    //         if (cur->data[i].logOdds == LOG_ODDS_OCCUPIED) {
+    //             cpxPrintToConsole(LOG_TO_CRTP, "[ON](%d,%d,%d)#%d@%d$%d\n",
+    //                 cur->data[i].origin.x,
+    //                 cur->data[i].origin.y,
+    //                 cur->data[i].origin.z,
+    //                 cur->data[i].logOdds,
+    //                 cur->data[i].width,
+    //                 cur->data[i].uav_id);
+    //             pi_time_wait_us(1 * 1000);
+    //         }
+    //     }
+    //     pi_time_wait_us(10 * 1000);
+    //     cur = base+cur->next;
+    // }
     HasPrinted=true;
 }
 
