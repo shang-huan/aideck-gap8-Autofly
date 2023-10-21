@@ -127,7 +127,7 @@ void sendClusterRespPacket(){
 }
 
 void sendExploreRespPacket(uint8_t destinationId, uint8_t seq){
-    // cpxPrintToConsole(LOG_TO_CRTP, "[sendExploreRespPacket]destinationId = %d, seq = %d\n", destinationId, seq);
+    cpxPrintToConsole(LOG_TO_CRTP, "[sendExploreRespPacket]destinationId = %d, seq = %d\n", destinationId, seq);
     CPXPacket_t GAPTxSTM;
     Autofly_packet_t* autofly_packet_send = (Autofly_packet_t*)GAPTxSTM.data;
     autofly_packet_send->sourceId = AIDECK_ID;
@@ -153,7 +153,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
     switch(PacketType){
         case MAPPING_REQ:
         {
-            // cpxPrintToConsole(LOG_TO_CRTP, "[MAPPING_REQ] %d\n", autofly_packet->sourceId);
+            cpxPrintToConsole(LOG_TO_CRTP, "[MAPPING_REQ] %d\n", autofly_packet->sourceId);
             mapping_req_packet_t* mapping_req_packet = (mapping_req_packet_t*)autofly_packet->data;
             // memcpy(&mapping_req_packet, &autofly_packet->data, sizeof(mapping_req_packet_t));
             uavSendC[autofly_packet->sourceId] = mapping_req_packet->seq;
@@ -164,7 +164,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
         }
         case EXPLORE_REQ:
         {
-            // cpxPrintToConsole(LOG_TO_CRTP, "[EXPLORE_REQ] %d\n", autofly_packet->sourceId);
+            cpxPrintToConsole(LOG_TO_CRTP, "[EXPLORE_REQ] %d\n", autofly_packet->sourceId);
             explore_req_packet_t* explore_req_packet = (explore_req_packet_t*)autofly_packet->data;
             // memcpy(&explore_req_packet, &autofly_packet->data, sizeof(explore_req_packet_t));
             uavs[autofly_packet->sourceId].uavRange = explore_req_packet->exploreRequestPayload.uavRange;
@@ -209,7 +209,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
 
 void ReceiveAndSend(void)
 {
-    cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]Start\n");
+    // cpxPrintToConsole(LOG_TO_CRTP, "[ReceiveAndGive]Start\n");
     cpxReceivePacketBlocking(CPX_F_APP, &packet);
     // Packet Loss Rate Calculate Module
     // count and split packet from other UAV

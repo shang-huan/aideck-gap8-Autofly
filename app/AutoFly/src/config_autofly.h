@@ -19,7 +19,7 @@
 #define SPEED 0.25
 
 //control_tool config
-#define UAVS_LIDAR_NUM 4
+#define UAVS_LIDAR_NUM 2
 
 //octomap config
 #define TREE_CENTER_X 128
