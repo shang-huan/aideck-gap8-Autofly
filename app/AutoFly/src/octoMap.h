@@ -18,11 +18,21 @@ typedef struct
 } coordinate_t;
 
 // OctoNode
+// typedef struct
+// {
+//     uint16_t children : 12; // first child node index (the following 7 children are in order, rft, rbt, lbt, lft, rfn, rbn, lbn, lfn)
+//     uint16_t logOdds : 3;   // occupation probability level
+//     uint16_t isLeaf : 1;    // whether is leaf node
+//     coordinate_t origin;    // origin coordinate of the voxel node
+//     uint16_t width;
+//     uint8_t uav_id;
+// } octoNode_t;
+
 typedef struct
 {
-    uint16_t children : 12; // first child node index (the following 7 children are in order, rft, rbt, lbt, lft, rfn, rbn, lbn, lfn)
-    uint16_t logOdds : 3;   // occupation probability level
-    uint16_t isLeaf : 1;    // whether is leaf node
+    uint16_t children ; // first child node index (the following 7 children are in order, rft, rbt, lbt, lft, rfn, rbn, lbn, lfn)
+    uint16_t logOdds ;   // occupation probability level
+    uint16_t isLeaf ;    // whether is leaf node
     coordinate_t origin;    // origin coordinate of the voxel node
     uint16_t width;
     uint8_t uav_id;
