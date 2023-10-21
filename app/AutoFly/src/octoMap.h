@@ -31,12 +31,9 @@ typedef struct
 typedef struct
 {
     uint16_t children ; // first child node index (the following 7 children are in order, rft, rbt, lbt, lft, rfn, rbn, lbn, lfn)
-    union nodeitem
-    {
-        uint8_t logOdds : 4 ;   // occupation probability level
-        uint8_t isLeaf : 1 ;    // whether is leaf node
-        uint8_t uav_id : 3 ;
-    };
+    uint8_t logOdds : 4 ;   // occupation probability level
+    uint8_t isLeaf : 1 ;    // whether is leaf node
+    uint8_t uav_id : 3 ;
     // coordinate_t origin;    // origin coordinate of the voxel node
     // uint16_t width;
 } octoNode_t;
