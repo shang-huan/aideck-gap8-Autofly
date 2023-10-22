@@ -128,7 +128,7 @@ void sendClusterRespPacket(){
 }
 
 void sendExploreRespPacket(uint8_t destinationId, uint8_t seq){
-    cpxPrintToConsole(LOG_TO_CRTP, "[sendExploreRespPacket]destinationId = %d, seq = %d\n", destinationId, seq);
+    // cpxPrintToConsole(LOG_TO_CRTP, "[sendExploreRespPacket]destinationId = %d, seq = %d\n", destinationId, seq);
     CPXPacket_t GAPTxSTM;
     Autofly_packet_t* autofly_packet_send = (Autofly_packet_t*)GAPTxSTM.data;
     autofly_packet_send->sourceId = AIDECK_ID;
@@ -146,6 +146,7 @@ void sendExploreRespPacket(uint8_t destinationId, uint8_t seq){
     cpxInitRoute(CPX_T_GAP8, CPX_T_STM32, CPX_F_APP, &GAPTxSTM.route);
     GAPTxSTM.dataLength = autofly_packet_send->length;
     cpxSendPacketBlocking(&GAPTxSTM);
+    cpxPrintToConsole(LOG_TO_CRTP, "[sendExploreRespPacket](S:%d,D:%d,ND:%d,T:%d,L:%d)\n", GAPTxSTM.data[0],GAPTxSTM.data[1],GAPTxSTM.data[2],GAPTxSTM.data[3],GAPTxSTM.data[4]);
     pi_time_wait_us(10 * 1000);
 }
 
