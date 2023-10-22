@@ -163,7 +163,8 @@ bool CalNextPoint(uavControl_t* uavControl,uavControl_t** uavs,octoMap_t* octoMa
     if(uavControl->flag_jump){
         if(!JumpLocalOp(uavControl,uavs)){
             --uavControl->loops[index_loop];
-            return CalNextPoint(uavControl, uavs, octoMap);
+            cpxPrintToConsole(LOG_TO_CRTP,"JumpLocalOp fail\n");
+            return false;//CalNextPoint(uavControl, uavs, octoMap);
         }
     }
     return true;

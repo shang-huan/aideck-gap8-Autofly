@@ -231,7 +231,7 @@ void ReceiveAndSend(void)
 }
 
 void InitTask(void){
-    pi_time_wait_us(4000 * 1000);
+    // pi_time_wait_us(4000 * 1000);
     for (int i = 1; i <= UAVS_LIDAR_NUM; ++i) {
         inituavControl(&uavs[i]);
         finishFlag[i] = false;
@@ -244,7 +244,7 @@ void InitTask(void){
     cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]Start\n");
 
     sendExploreRespPacket(100,0);
-    pi_time_wait_us(4000 * 1000);
+    // pi_time_wait_us(4000 * 1000);
     // for(int i = 0;i<500;++i){
     //     cpxPrintToConsole(LOG_TO_CRTP, "[InitTask]testing\n");
     //     pi_time_wait_us(10 * 1000);
