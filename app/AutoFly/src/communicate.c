@@ -146,7 +146,7 @@ void sendExploreRespPacket(uint8_t destinationId, uint8_t seq){
     cpxInitRoute(CPX_T_GAP8, CPX_T_STM32, CPX_F_APP, &GAPTxSTM.route);
     GAPTxSTM.dataLength = autofly_packet_send->length;
     cpxSendPacketBlocking(&GAPTxSTM);
-    cpxPrintToConsole(LOG_TO_CRTP, "[sendExploreRespPacket](S:%d,D:%d,ND:%d,T:%d,L:%d)\n", GAPTxSTM.data[0],GAPTxSTM.data[1],GAPTxSTM.data[2],GAPTxSTM.data[3],GAPTxSTM.data[4]);
+    // cpxPrintToConsole(LOG_TO_CRTP, "[sendExploreRespPacket](S:%d,D:%d,ND:%d,T:%d,L:%d)\n", GAPTxSTM.data[0],GAPTxSTM.data[1],GAPTxSTM.data[2],GAPTxSTM.data[3],GAPTxSTM.data[4]);
     pi_time_wait_us(10 * 1000);
 }
 
@@ -155,7 +155,7 @@ void processAutoflyPacket(Autofly_packet_t* autofly_packet){
     switch(PacketType){
         case MAPPING_REQ:
         {
-            cpxPrintToConsole(LOG_TO_CRTP, "[MAPPING_REQ] %d\n", autofly_packet->sourceId);
+            // cpxPrintToConsole(LOG_TO_CRTP, "[MAPPING_REQ] %d\n", autofly_packet->sourceId);
             mapping_req_packet_t* mapping_req_packet = (mapping_req_packet_t*)autofly_packet->data;
             // memcpy(&mapping_req_packet, &autofly_packet->data, sizeof(mapping_req_packet_t));
             uavSendC[autofly_packet->sourceId] = mapping_req_packet->seq;
